@@ -1,0 +1,27 @@
+<w>
+    <intro>
+        <background x="0" y="0" width="5000" height="5000" stretch="1">
+            <texture>ui_intro_bg</texture>
+        </background>
+
+        <txt x="330" y="104" width="400" height="700">
+            <text complex_mode="1" r="200" g="200" b="200" align="l" vert_align="c" font="di"/>
+        </txt>
+
+        <!-- <location x="330" y="104" width="400" height="39">
+            <text complex_mode="1" r="200" g="200" b="200" align="l" vert_align="c" font="di"/>
+        </location>
+
+        <date x="330" y="143" width="400" height="39">
+            <text complex_mode="1" r="200" g="200" b="200" align="l" vert_align="c" font="di"/>
+        </date>
+
+        <name x="330" y="182" width="400" height="39">
+            <text complex_mode="1" r="200" g="200" b="200" align="l" vert_align="c" font="di"/>
+        </name>
+
+        <rank x="330" y="221" width="400" height="39">
+            <text complex_mode="1" r="200" g="200" b="200" align="l" vert_align="c" font="di"/>
+        </rank> -->
+    </intro>
+</w>

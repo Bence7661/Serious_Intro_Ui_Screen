@@ -1,0 +1,143 @@
+GUI = nil
+
+function start()
+	local hud = get_hud()
+	if (hud) then
+		hide_hud_inventory()
+	end
+	
+	if (not GUI) then
+		GUI = UIIntroScreen()
+	end
+	
+	if (GUI) and (not GUI:IsShown()) then
+		GUI:Reset()
+		GUI:ShowDialog(true)
+		GUI:TypeTxt()
+		Register_UI("UIIntroScreen","intro_screen")
+	end
+end
+
+class "UIIntroScreen" (CUIScriptWnd)
+
+function UIIntroScreen:__init() super()
+	self:InitControls()
+	-- self:InitCallBacks()
+end
+
+function UIIntroScreen:__finalize()
+end
+
+function UIIntroScreen:InitControls()
+	self:SetWndRect(Frect():set(0,0,5000,5000))
+	self:SetAutoDelete(true)
+	self.xml 	=	CScriptXmlInit()
+	local xml 	=	self.xml
+	xml:ParseFile("ui_intro_screen_16.xml")
+	
+	self.dialog	= xml:InitStatic("intro", self)
+	self.bgTexture = xml:InitStatic("intro:background", self.dialog)
+	self.txt = xml:InitTextWnd("intro:txt" , self.dialog)
+end
+
+function UIIntroScreen:Reset()
+	self.typed_text = ""
+	self.current_index = 1
+	self.char_delay = 0.01
+	self.typing_complete = false
+	self.time_elapsed = 0
+
+	local exclusionZoneTxt = "Chernobyl Exclusion Zone - "
+	local lvlUiName = game.translate_string(level.name())
+	local dateTime = GetDateTime()
+	local actorName = db.actor:character_name()
+	local faction = utils_xml.get_special_txt("actor_" .. get_actor_true_community())
+	local rank = game.translate_string("st_rank_"..ranks.get_se_obj_rank_name(db.actor))
+
+	self.fullDispMsg =
+		exclusionZoneTxt .. lvlUiName .. "\\n"
+		.. dateTime .. "\\n"
+		.. actorName .. "\\n"
+		.. rank .. " " .. faction
+
+	self.txt:SetText(rank .. " " .. faction)
+end
+
+function UIIntroScreen:Update()
+	CUIScriptWnd.Update(self)
+end
+
+function UIIntroScreen:TypeTxt()
+	self.bgTexture:Show(true)
+	CreateTimeEvent("intro_screen", "type", self.char_delay, Type, self)
+end
+
+function Type(uiIntroScreen)
+	if uiIntroScreen.current_index <= #uiIntroScreen.fullDispMsg then
+		local msgSection = uiIntroScreen.fullDispMsg:sub(uiIntroScreen.current_index, uiIntroScreen.current_index)
+		uiIntroScreen.typed_text = uiIntroScreen.typed_text .. msgSection
+		uiIntroScreen.current_index = uiIntroScreen.current_index + 1
+
+		local blink = (uiIntroScreen.current_index % 2 == 0) and "_" or " "
+		uiIntroScreen.txt:SetText(uiIntroScreen.typed_text .. blink)
+	end
+
+	if uiIntroScreen.current_index > #uiIntroScreen.fullDispMsg then
+		uiIntroScreen.typing_complete = true
+		uiIntroScreen.txt:SetText(uiIntroScreen.typed_text)
+		uiIntroScreen.bgTexture:Show(false)
+		return true
+	end
+
+	RemoveTimeEvent("intro_screen", "type")
+	CreateTimeEvent("intro_screen", "type", uiIntroScreen.char_delay, Type, uiIntroScreen)
+end
+
+function UIIntroScreen:OnKeyboard(dik, keyboard_action)
+	local res = CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+	if (res == false) then
+		
+		local bind = dik_to_bind(dik)
+		if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+			if dik == DIK_keys.DIK_ESCAPE then
+				self:OnCancel()
+			end
+		end
+	end
+	return res
+end
+
+function UIIntroScreen:OnCancel()
+	utils_obj.play_sound("interface\\inv_close")
+	self:HideDialog()
+
+	Unregister_UI("UIIntroScreen")
+end
+
+function GetDateTime()
+    local date = game.CTime().dateToString(game.get_game_time())
+    local dayPart = "" -- PM or AM
+
+    local timeOfDay = game.get_game_time()
+
+    local Y, M, D, h, m, s, ms = 0, 0, 0, 0, 0, 0, 0
+    Y, M, D, h, m, s, ms = timeOfDay:get( Y, M, D, h, m, s, ms )
+
+    if h > 12 then 
+        h = h - 12
+        dayPart = " PM"
+    else
+        dayPart = " AM"
+    end
+
+    local mString = ""
+    if m < 10 then
+        mString = "0" .. m
+    else
+        mString = tostring(m)
+    end
+
+    local uiTimeOfDay = h .. ":" .. mString .. dayPart
+
+    return uiTimeOfDay .. " - " .. date
+end

@@ -1,0 +1,11 @@
+<w>
+    <intro>
+        <background x="0" y="0" width="5000" height="5000" stretch="1">
+            <texture>ui_intro_bg</texture>
+        </background>
+
+        <txt x="350" y="273" width="400" height="700">
+            <text complex_mode="1" r="200" g="200" b="200" align="l" font="letterica25"/>
+        </txt>
+    </intro>
+</w>

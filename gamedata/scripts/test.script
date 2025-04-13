@@ -1,62 +1,16 @@
 local isIntroTextShown = false
 
-local exclusionZoneTxt = "Chernobyl Exclusion Zone - "
-
 function ShowIntroText()
-    if not isIntroTextShown then
-        local dispMsg = ""
-        local lvlUiName = game.translate_string(level.name())
-        local dateTime = GetDateTime()
-        local actorName = db.actor:character_name()
-        local faction = utils_xml.get_special_txt("actor_" .. get_actor_true_community())
-        local rank = game.translate_string("st_rank_"..ranks.get_se_obj_rank_name(db.actor))
-
-        local dispMsg = dispMsg
-            .. exclusionZoneTxt
-            .. lvlUiName .. "\\n"
-            .. dateTime .. "\\n"
-            .. actorName .. "\\n"
-            .. rank .. " " .. faction
-
-        news_manager.send_tip(db.actor, dispMsg, nil, nil, 1000)
-        -- isIntroTextShown = true --FOR DEBUG I COMMENT IT OUT
-        return true
+    local ui = ui_intro_screen and ui_intro_screen.start()
+    if (ui) then
+        ui:ShowDialog(true)
     end
+end
+
+local function onKeyPressCallback(key)
+    if key == DIK_keys.DIK_C then ShowIntroText() end
 end
 
 function on_game_start()
-    RegisterScriptCallback("on_before_key_release", ShowIntroText)
-end
-
---[[
-But like in stalker style, Chernobyl Exclusion zone - location name, player name, day, time in hours-minutes-seconds, faction name + rank 
-like a Rookie Loner, Legend Monolith
-]]
-
-function GetDateTime()
-    local date = game.CTime().dateToString(game.get_game_time())
-    local dayPart = "" -- PM or AM
-
-    local timeOfDay = game.get_game_time()
-
-    local Y, M, D, h, m, s, ms = 0, 0, 0, 0, 0, 0, 0
-    Y, M, D, h, m, s, ms = timeOfDay:get( Y, M, D, h, m, s, ms )
-
-    if h > 12 then 
-        h = h - 12
-        dayPart = " PM"
-    else
-        dayPart = " AM"
-    end
-
-    local mString = ""
-    if m < 10 then
-        mString = "0" .. m
-    else
-        mString = tostring(m)
-    end
-
-    local uiTimeOfDay = h .. ":" .. mString .. dayPart
-
-    return uiTimeOfDay .. " - " .. date
+    RegisterScriptCallback("on_key_press", onKeyPressCallback)
 end

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<w>
+   <file name="ui\ui_intro_bg">
+      <texture id="ui_intro_bg" x="0" y="0" width="1920" height="1080" />
+   </file>
+</w>
