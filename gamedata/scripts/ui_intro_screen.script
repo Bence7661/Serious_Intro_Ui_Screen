@@ -12,8 +12,7 @@ function start()
 	
 	if (GUI) and (not GUI:IsShown()) then
 		GUI:Reset()
-		GUI:ShowDialog(true)
-		GUI:TypeTxt()
+		GUI:Trigger()
 		Register_UI("UIIntroScreen","intro_screen")
 	end
 end
@@ -34,8 +33,9 @@ function UIIntroScreen:InitControls()
 	self.xml 	=	CScriptXmlInit()
 	local xml 	=	self.xml
 	xml:ParseFile("ui_intro_screen_16.xml")
-	
+
 	self.dialog	= xml:InitStatic("intro", self)
+	self:AllowMovement(false)
 	self.bgTexture = xml:InitStatic("intro:background", self.dialog)
 	self.txt = xml:InitTextWnd("intro:txt" , self.dialog)
 end
@@ -47,6 +47,7 @@ function UIIntroScreen:Reset()
 	self.typing_complete = false
 	self.time_elapsed = 0
 
+	self:AllowMovement(false)
 	local exclusionZoneTxt = "Chernobyl Exclusion Zone - "
 	local lvlUiName = game.translate_string(level.name())
 	local dateTime = GetDateTime()
@@ -61,6 +62,10 @@ function UIIntroScreen:Reset()
 		.. rank .. " " .. faction
 
 	self.txt:SetText(rank .. " " .. faction)
+	self.txt:SetTextColor(GetARGB(255, 255, 255, 255))
+	self.bgTexture:SetTextureColor(GetARGB(255, 255, 255, 255))
+	self.bgTexture:Show(true)
+	self.txt:Show(true)
 end
 
 function UIIntroScreen:Update()
@@ -69,28 +74,13 @@ end
 
 function UIIntroScreen:TypeTxt()
 	self.bgTexture:Show(true)
+	self.txt:Show(true)
 	CreateTimeEvent("intro_screen", "type", self.char_delay, Type, self)
 end
 
-function Type(uiIntroScreen)
-	if uiIntroScreen.current_index <= #uiIntroScreen.fullDispMsg then
-		local msgSection = uiIntroScreen.fullDispMsg:sub(uiIntroScreen.current_index, uiIntroScreen.current_index)
-		uiIntroScreen.typed_text = uiIntroScreen.typed_text .. msgSection
-		uiIntroScreen.current_index = uiIntroScreen.current_index + 1
-
-		local blink = (uiIntroScreen.current_index % 2 == 0) and "_" or " "
-		uiIntroScreen.txt:SetText(uiIntroScreen.typed_text .. blink)
-	end
-
-	if uiIntroScreen.current_index > #uiIntroScreen.fullDispMsg then
-		uiIntroScreen.typing_complete = true
-		uiIntroScreen.txt:SetText(uiIntroScreen.typed_text)
-		uiIntroScreen.bgTexture:Show(false)
-		return true
-	end
-
-	RemoveTimeEvent("intro_screen", "type")
-	CreateTimeEvent("intro_screen", "type", uiIntroScreen.char_delay, Type, uiIntroScreen)
+function UIIntroScreen:Trigger()
+	self:ShowDialog(true)
+	self:TypeTxt()
 end
 
 function UIIntroScreen:OnKeyboard(dik, keyboard_action)
@@ -113,6 +103,39 @@ function UIIntroScreen:OnCancel()
 
 	Unregister_UI("UIIntroScreen")
 end
+
+function Type(uiIntroScreen)
+	if uiIntroScreen.current_index <= #uiIntroScreen.fullDispMsg then
+		local msgSection = uiIntroScreen.fullDispMsg:sub(uiIntroScreen.current_index, uiIntroScreen.current_index)
+		uiIntroScreen.typed_text = uiIntroScreen.typed_text .. msgSection
+		uiIntroScreen.current_index = uiIntroScreen.current_index + 1
+
+		local blink = (uiIntroScreen.current_index % 2 == 0) and "_" or " "
+		uiIntroScreen.txt:SetText(uiIntroScreen.typed_text .. blink)
+	end
+
+	if uiIntroScreen.current_index > #uiIntroScreen.fullDispMsg then
+		uiIntroScreen.typing_complete = true
+		uiIntroScreen.txt:SetText(uiIntroScreen.typed_text)
+
+		stolen_from_catspaws_secret_lab.fade_texture(uiIntroScreen.bgTexture, 4000, nil, false)
+		CreateTimeEvent("intro_screen", "fade_txt", 2000, stolen_from_catspaws_secret_lab.fade_texture(uiIntroScreen.txt, 1000, linearThenAccelerate, true, uiIntroScreen.OnCancel, uiIntroScreen))
+		uiIntroScreen:AllowMovement(true)
+		return true
+	end
+
+	RemoveTimeEvent("intro_screen", "type")
+	CreateTimeEvent("intro_screen", "type", uiIntroScreen.char_delay, Type, uiIntroScreen)
+end
+
+function linearThenAccelerate(x)
+    return math.pow(x, 0.5)  -- Try 0.4 or 0.3 for even more end aggression
+end
+
+function easeInSine(x)
+    return 1 - math.cos((x * math.pi) / 2)
+end
+
 
 function GetDateTime()
     local date = game.CTime().dateToString(game.get_game_time())
