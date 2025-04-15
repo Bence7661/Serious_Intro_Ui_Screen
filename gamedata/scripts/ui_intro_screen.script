@@ -53,7 +53,7 @@ function UIIntroScreen:Reset()
 	local dateTime = GetDateTime()
 	local actorName = db.actor:character_name()
 	local faction = utils_xml.get_special_txt("actor_" .. get_actor_true_community())
-	local rank = game.translate_string("st_rank_"..ranks.get_se_obj_rank_name(db.actor))
+	local rank = game.translate_string("st_rank_"..ranks.get_obj_rank_name(db.actor))
 
 	self.fullDispMsg =
 		exclusionZoneTxt .. lvlUiName .. "\\n"
