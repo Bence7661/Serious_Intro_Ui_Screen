@@ -1,0 +1,20 @@
+function get_config(key)
+    if ui_mcm then return ui_mcm.get("serious_intro_screen/"..key) else return defaults[key] end
+  end
+  
+  function on_mcm_load()
+      op = {
+        id = "serious_intro_screen",
+        sh = true,
+        gr =
+          {  -- options tree goes here
+            { id = "sld", type = "slide", text = "ui_mcm_intro_screen_sld_text", link = "ui_options_slider_mask", size = {512, 50}, spacing = 20},
+            { id = "type_anim_speed", type="list", val=0, def="0", content={
+              {"0", "default"},
+              {"1", "slow"},
+              }
+            },
+          }
+        }
+      return op
+    end

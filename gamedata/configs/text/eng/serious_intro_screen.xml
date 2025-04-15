@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<string_table>
+    <string id="ui_mcm_menu_serious_intro_screen">
+        <text>Intro screen</text>
+    </string>
+
+    <string id="ui_intro_screen_sld">
+        <text>Intro screen</text>
+    </string>
+
+    <string id="ui_mcm_intro_screen_sld_text">
+        <text>Intro screen</text>
+    </string>
+    
+    <string id="ui_mcm_serious_intro_screen_type_anim_speed_desc">
+        <text>Sets how fast the intro text will be typed out.</text>
+    </string>
+
+    <string id="ui_mcm_serious_intro_screen_type_anim_speed">
+        <text>Type animation speed</text>
+    </string>
+
+    <string id="ui_mcm_lst_default">
+        <text>Default</text>
+    </string>
+
+    <string id="ui_mcm_lst_slow">
+        <text>Slow</text>
+    </string>
+</string_table>

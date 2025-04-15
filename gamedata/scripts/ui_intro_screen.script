@@ -1,15 +1,17 @@
 GUI = nil
+local config = serious_intro_screen_mcm.get_config
+local typeAnimSpeed = config and tonumber(config("type_anim_speed")) or 0
 
 function start()
 	local hud = get_hud()
 	if (hud) then
 		hide_hud_inventory()
 	end
-	
+
 	if (not GUI) then
 		GUI = UIIntroScreen()
 	end
-	
+
 	if (GUI) and (not GUI:IsShown()) then
 		GUI:Reset()
 		GUI:Trigger()
@@ -43,8 +45,13 @@ end
 function UIIntroScreen:Reset()
 	self.typed_text = ""
 	self.current_index = 1
-	-- self.type_speed = 0.03 -- Slow type anim
-	self.type_speed = 0.01
+
+	if typeAnimSpeed and typeAnimSpeed == 1 then -- I don't check for 0 because this way if typeAnimSpeed is nil I still get default value.
+		self.type_speed = 0.03
+	else
+		self.type_speed = 0.01
+	end
+
 	self.typing_complete = false
 	self.time_elapsed = 0
 
