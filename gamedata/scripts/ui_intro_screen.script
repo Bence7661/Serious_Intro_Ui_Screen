@@ -97,11 +97,11 @@ function UIIntroScreen:OnKeyboard(dik, keyboard_action)
 	return res
 end
 
-function UIIntroScreen:OnCancel()
-	utils_obj.play_sound("interface\\inv_close")
-	self:HideDialog()
+function UIIntroScreen:OnCancel(obj)
+	if obj then obj:HideDialog() else self:HideDialog() end
 
 	Unregister_UI("UIIntroScreen")
+	return true
 end
 
 function Type(uiIntroScreen)
@@ -118,8 +118,9 @@ function Type(uiIntroScreen)
 		uiIntroScreen.typing_complete = true
 		uiIntroScreen.txt:SetText(uiIntroScreen.typed_text)
 
-		stolen_from_catspaws_secret_lab.fade_texture(uiIntroScreen.bgTexture, 4000, nil, false)
-		CreateTimeEvent("intro_screen", "fade_txt", 2000, stolen_from_catspaws_secret_lab.fade_texture(uiIntroScreen.txt, 1000, linearThenAccelerate, true, uiIntroScreen.OnCancel, uiIntroScreen))
+		stolen_from_catspaws_secret_lab.fade_texture(uiIntroScreen.bgTexture, 2000, nil, false, uiIntroScreen.OnCancel, uiIntroScreen)
+		stolen_from_catspaws_secret_lab.fade_texture(uiIntroScreen.txt, 2000, linearThenAccelerate, true)
+
 		uiIntroScreen:AllowMovement(true)
 		return true
 	end
@@ -129,13 +130,8 @@ function Type(uiIntroScreen)
 end
 
 function linearThenAccelerate(x)
-    return math.pow(x, 0.5)  -- Try 0.4 or 0.3 for even more end aggression
+    return math.pow(x, 0.5)
 end
-
-function easeInSine(x)
-    return 1 - math.cos((x * math.pi) / 2)
-end
-
 
 function GetDateTime()
     local date = game.CTime().dateToString(game.get_game_time())
