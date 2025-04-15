@@ -43,7 +43,8 @@ end
 function UIIntroScreen:Reset()
 	self.typed_text = ""
 	self.current_index = 1
-	self.char_delay = 0.01
+	-- self.type_speed = 0.03 -- Slow type anim
+	self.type_speed = 0.01
 	self.typing_complete = false
 	self.time_elapsed = 0
 
@@ -55,10 +56,11 @@ function UIIntroScreen:Reset()
 	local faction = utils_xml.get_special_txt("actor_" .. get_actor_true_community())
 	local rank = game.translate_string("st_rank_"..ranks.get_obj_rank_name(db.actor))
 
+	-- "~" is a custom newline character I use. The `Type` function swaps these symbols to "\\n". This is just QoL for myself so I don't have to handle multiple characters in the type animation.
 	self.fullDispMsg =
-		exclusionZoneTxt .. lvlUiName .. "\\n"
-		.. dateTime .. "\\n"
-		.. actorName .. "\\n"
+		exclusionZoneTxt .. lvlUiName .. "~"
+		.. dateTime .. "~"
+		.. actorName .. "~"
 		.. rank .. " " .. faction
 
 	self.txt:SetText(rank .. " " .. faction)
@@ -75,7 +77,7 @@ end
 function UIIntroScreen:TypeTxt()
 	self.bgTexture:Show(true)
 	self.txt:Show(true)
-	CreateTimeEvent("intro_screen", "type", self.char_delay, Type, self)
+	CreateTimeEvent("intro_screen", "type", self.type_speed, Type, self)
 end
 
 function UIIntroScreen:Trigger()
@@ -107,6 +109,9 @@ end
 function Type(uiIntroScreen)
 	if uiIntroScreen.current_index <= #uiIntroScreen.fullDispMsg then
 		local msgSection = uiIntroScreen.fullDispMsg:sub(uiIntroScreen.current_index, uiIntroScreen.current_index)
+
+		if msgSection == "~" then msgSection = "\\n" end -- Custom newline character swap to actual newline character.
+
 		uiIntroScreen.typed_text = uiIntroScreen.typed_text .. msgSection
 		uiIntroScreen.current_index = uiIntroScreen.current_index + 1
 
@@ -120,13 +125,18 @@ function Type(uiIntroScreen)
 
 		stolen_from_catspaws_secret_lab.fade_texture(uiIntroScreen.bgTexture, 2000, nil, false, uiIntroScreen.OnCancel, uiIntroScreen)
 		stolen_from_catspaws_secret_lab.fade_texture(uiIntroScreen.txt, 2000, linearThenAccelerate, true)
-
-		uiIntroScreen:AllowMovement(true)
+		
+		--P.O.C. I can play animations when the screen starts to fade out.
+		-- local helm = db.actor:item_in_slot(12)
+		-- if helm then
+		-- 	headgear_animations.on_toggle_equip(helm)
+		-- end
+		-- uiIntroScreen:AllowMovement(true)
 		return true
 	end
 
 	RemoveTimeEvent("intro_screen", "type")
-	CreateTimeEvent("intro_screen", "type", uiIntroScreen.char_delay, Type, uiIntroScreen)
+	CreateTimeEvent("intro_screen", "type", uiIntroScreen.type_speed, Type, uiIntroScreen)
 end
 
 function linearThenAccelerate(x)
